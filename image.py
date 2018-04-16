@@ -1,42 +1,34 @@
 from PIL import Image
 from scipy import misc
 import numpy as np
+import os
 
-image3d = misc.imread('test.png')
+# Function to encrypt an image
+def encrypt(image):
+    # Transforms image into a 1D array
+    d = image.flatten()
+    nx = len(image)
+    ny = len(image[0])
+    nz = len(image[0][0])
+    count = 0
+    # Iterate through the 1D array and 
+    # encrypt each value
+    for i in range(0, image.size):
+        # Test mod encryption
+        d[i] = d[i] % 100
+    # Counter for images that have been processed
+    count += 1
+    # Reshaped 1D image into a matrix
+    encrypted_image_3d = d.reshape((nx,ny,nz))
 
+    # Converts matrix back into an image, then saves the images
+    encrypted_image = Image.fromarray(encrypted_image_3d, 'RGB')    
+    encrypted_image.save('./dirty/ecnrypted_image_%d.JPG' %count)
 
-nx = 20
-ny = 20
-nz = 3
+# Path to clean images
+path = './clean'
 
-encrypt_1d = np.zeros(1200)
-encrypt_count = 0
-for i in range(nx):
-    for j in range(ny):
-        for k in range(nz):
-            encrypt_1d[encrypt_count] = image3d[i,j,k]
-            encrypt_count += 1
-
-count = 0
-encrypt_3d = np.zeros((20,20,3), dtype=int)
-for i in range(nx):
-    for j in range(ny):
-        for k in range(nz):
-            val =  encrypt_1d[count]
-            encrypt_3d[i,j,k] = int(val)
-            count += 1
-
-print("******************* Encrypted Image ***********************")
-print("")
-print(encrypt_3d)
-print("")
-print("******************* OG Image ***********************")
-print(image3d)
-
-final_img = Image.fromarray(encrypt_3d, 'RGB')
-final_img.save('encrypt_img.png')
-final_img.show()
-
-og_img = Image.fromarray(image3d, 'RGB')
-og_img.save('og_img.png')
-og_img.show()
+# Read all images from path
+for cleanImage in os.listdir(path):
+    i = misc.imread('./clean/%s' %cleanImage)
+    encrypt(i)
